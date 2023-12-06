@@ -1,5 +1,4 @@
 use crate::aoc_utility::aoc_utility;
-use std::collections::HashMap;
 
 #[repr(i64)]
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -57,7 +56,7 @@ impl Game {
             let str_game = line_parts.first().unwrap();
             let mut game = Game::new(); 
             let vec_game_data: Vec<&str> = str_game.trim().split(" ").collect();
-            game.index = vec_game_data.last().unwrap().parse::<i64>().unwrap(); // TODO
+            game.index = vec_game_data.last().unwrap().parse::<i64>().unwrap(); 
 
             let str_rounds : Vec<&str> = line_parts.last().unwrap().split(";").collect(); 
             for round in str_rounds {
@@ -104,9 +103,7 @@ pub fn run_part1() -> (bool, String)
             Cube { count: 0, color: Color::Blue }
         ];
 
-        println!("############### Game({}) ###############", game.index);
         for round in &mut game.rounds {
-            println!(".--- Round ---.");
             for cube in &mut round.cubes {
                 match cube.color {
                     Color::Red => max_found_cubes[0].count = std::cmp::max(max_found_cubes[0].count, cube.count),
@@ -114,9 +111,7 @@ pub fn run_part1() -> (bool, String)
                     Color::Blue => max_found_cubes[2].count = std::cmp::max(max_found_cubes[2].count, cube.count),
                 };
 
-                print!("Cube({:?}, {}), ", cube.color, cube.count)
             }
-            println!("");
         }
         
         if
@@ -126,8 +121,6 @@ pub fn run_part1() -> (bool, String)
         {
             game.possible = true;   
         }
-
-        println!("");
     }
 
     let sum_of_ids : i64 = games.iter()
@@ -135,5 +128,35 @@ pub fn run_part1() -> (bool, String)
         .map(|game| game.index )
         .sum();
 
-    return (false, format!("Sum of IDs \"{}\"", sum_of_ids));
+    return (true, format!("Sum of IDs \"{}\"", sum_of_ids));
+}
+
+pub fn run_part2() -> (bool, String) {
+    let input = aoc_utility::get_input("input.txt", "day_2");
+    let mut games = Game::parse(&input);
+
+    let mut total_sum : i64 = 0;
+
+    for game in &mut games {
+        let mut least_needed: [Cube; 3] = [
+            Cube { count: 0, color: Color::Red },
+            Cube { count: 0, color: Color::Green},
+            Cube { count: 0, color: Color::Blue }
+        ];
+
+        for round in &mut game.rounds {
+            for cube in &mut round.cubes {
+                match cube.color {
+                    Color::Red => least_needed[0].count = std::cmp::max(least_needed[0].count, cube.count),
+                    Color::Green => least_needed[1].count = std::cmp::max(least_needed[1].count, cube.count),
+                    Color::Blue => least_needed[2].count = std::cmp::max(least_needed[2].count, cube.count),
+                };
+
+            }
+        }
+
+        total_sum += least_needed[0].count * least_needed[1].count * least_needed[2].count;
+    }
+
+    return (false, format!("Total som for least needed: {}", total_sum));
 }
